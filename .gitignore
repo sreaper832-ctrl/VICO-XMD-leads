@@ -1,0 +1,8 @@
+node_modules/
+.env
+storage/session-data/pairing/*
+storage/session-data/anti_settings.json
+storage/auth.json
+storage/database.json
+logs/*.log
+tmp/*
