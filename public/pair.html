@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VICO XMD — WEB PAIRING</title>
+<link rel="icon" href="https://files.catbox.moe/nvfzsg.jpg">
+<style>
+  :root {
+    --bg: #050505;
+    --card: #0f0606;
+    --card-glass: rgba(15, 6, 6, 0.93);
+    --border: #3a0f0f;
+    --accent: #e10600;
+    --accent-bright: #ff2a2a;
+    --text: #f5f5f5;
+    --muted: #a89a9a;
+    --danger: #ff6b6b;
+    --ash-white: #e8e8e8;
+    --cool-red: #ff1a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse 100% 70% at 50% -15%, #3a0808 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 95% 100%, #1a0000 0%, transparent 45%),
+      radial-gradient(ellipse 50% 40% at 5% 85%, #2a0505 0%, transparent 40%),
+      var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    padding: 12px 20px 20px;
+    overflow-x: hidden;
+  }
+
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(110px);
+    opacity: 0.22;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 500px; height: 500px;
+    background: #e10600;
+    top: -180px; left: -130px;
+    animation: float1 16s ease-in-out infinite;
+  }
+  body::after {
+    width: 420px; height: 420px;
+    background: #7a0c0c;
+    bottom: -140px; right: -110px;
+    animation: float2 20s ease-in-out infinite;
+  }
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(55px, 40px); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-45px, -50px); }
+  }
+
+  /* ===== FLOATING RED DOTS ===== */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    bottom: -10px;
+    width: 5px;
+    height: 5px;
+    background: #ff2a2a;
+    border-radius: 50%;
+    opacity: 0;
+    box-shadow: 0 0 8px #ff2a2a;
+    animation: riseUp linear infinite;
+  }
+  @keyframes riseUp {
+    0% {
+      transform: translateY(0) scale(0.6);
+      opacity: 0;
+    }
+    8% {
+      opacity: 0.6;
+    }
+    70% {
+      opacity: 0.35;
+    }
+    100% {
+      transform: translateY(-110vh) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  /* ===== INTRO ===== */
+  #intro {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+  #intro.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #intro .welcome {
+    font-size: clamp(1.9rem, 6.5vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd, #60a5fa, #3b82f6);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: blueShine 2s linear infinite, fadeInUp 0.45s ease;
+    text-align: center;
+  }
+  #intro .sub-welcome {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #60a5fa;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    opacity: 0.9;
+    animation: fadeInUp 0.55s ease 0.1s both;
+  }
+  @keyframes blueShine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .container {
+    width: 100%;
+    max-width: 460px;
+    z-index: 1;
+  }
+
+  /* ===== TOP BAR ===== */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    margin-top: -8px;
+    position: relative;
+  }
+
+  .time-box {
+    font-size: 13px;
+    color: #a89a9a;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    background: rgba(15, 6, 6, 0.75);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(225, 6, 0, 0.12);
+  }
+  .time-box span {
+    color: #ff2a2a;
+    font-weight: 700;
+  }
+
+  .menu-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(15, 6, 6, 0.85);
+    color: #f5f5f5;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .menu-btn:hover {
+    border-color: #ff2a2a;
+    color: #ff2a2a;
+    box-shadow: 0 0 18px rgba(225, 6, 0, 0.35);
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: #120808;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    min-width: 185px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.65);
+    overflow: hidden;
+    display: none;
+    z-index: 50;
+    animation: dropIn 0.2s ease;
+  }
+  .dropdown.show { display: block; }
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .dropdown button {
+    width: 100%;
+    padding: 14px 18px;
+    background: transparent;
+    border: none;
+    color: #f5f5f5;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-transform: uppercase;
+  }
+  .dropdown button:hover {
+    background: rgba(225, 6, 0, 0.18);
+    color: #ff2a2a;
+  }
+  .dropdown button + button {
+    border-top: 1px solid #2a1212;
+  }
+
+  .card {
+    position: relative;
+    background: var(--card-glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    padding: 36px 28px 32px;
+    box-shadow:
+      0 30px 60px -15px rgba(0, 0, 0, 0.75),
+      0 0 40px rgba(225, 6, 0, 0.06);
+    overflow: visible;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; animation: sectionIn 0.3s ease; }
+  @keyframes sectionIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== LOGO GLOW ===== */
+  .logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 22px;
+  }
+
+  .logo-glow {
+    position: relative;
+    width: 114px;
+    height: 114px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-glow::before {
+    content: "";
+    position: absolute;
+    inset: -30px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(225, 6, 0, 0.55) 0%, rgba(225, 6, 0, 0.18) 40%, transparent 70%);
+    animation: pulseGlow 3.2s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .logo-glow::after {
+    content: "";
+    position: absolute;
+    inset: -13px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 42, 42, 0.5);
+    box-shadow:
+      0 0 28px rgba(225, 6, 0, 0.75),
+      0 0 55px rgba(225, 6, 0, 0.4),
+      inset 0 0 22px rgba(225, 6, 0, 0.25);
+    animation: ringPulse 2.8s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  .logo-glow img {
+    width: 102px;
+    height: 102px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ff2a2a;
+    position: relative;
+    z-index: 2;
+    box-shadow:
+      0 0 22px rgba(225, 6, 0, 0.85),
+      0 0 45px rgba(225, 6, 0, 0.5),
+      0 10px 28px rgba(0, 0, 0, 0.6);
+    background: #1a0505;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.13); opacity: 1; }
+  }
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.07); opacity: 1; }
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #fff;
+    text-align: center;
+    margin-top: 16px;
+  }
+  /* VICO XMD - cool soft white/ash (slightly bright) */
+  h1 .brand {
+    color: var(--ash-white);
+    text-shadow: 
+      0 0 8px rgba(255, 255, 255, 0.25),
+      0 0 18px rgba(255, 255, 255, 0.12);
+    letter-spacing: 0.5px;
+  }
+  h1 span { color: var(--accent-bright); }
+
+  .title-line {
+    width: 48px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #ff2a2a, transparent);
+    margin: 10px auto 0;
+    border-radius: 3px;
+  }
+
+  p.sub {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin: 14px 0 24px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  label {
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  input[type=text],
+  input[type=password] {
+    width: 100%;
+    background: #0a0505;
+    border: 1px solid #2a1212;
+    border-radius: 14px;
+    padding: 15px 16px;
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.25);
+  }
+
+  .hint {
+    font-size: 12px;
+    color: #7a6666;
+    margin-top: 10px;
+  }
+
+  button.submit-btn {
+    margin-top: 18px;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff1a1a, #b00000);
+    color: #fff;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 24px rgba(225, 6, 0, 0.4);
+  }
+  button.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 12px 32px rgba(225, 6, 0, 0.55);
+  }
+  button.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .result {
+    display: none;
+    margin-top: 26px;
+    text-align: center;
+    border-top: 1px dashed var(--border);
+    padding-top: 26px;
+  }
+  .code {
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+    font-size: 30px;
+    letter-spacing: 4px;
+    font-weight: 700;
+    color: var(--accent-bright);
+    background: #0a0505;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 14px;
+    margin: 12px 0;
+    box-shadow: 0 0 30px rgba(225, 6, 0, 0.15);
+  }
+  .steps {
+    text-align: left;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-top: 14px;
+    padding-left: 18px;
+  }
+  .steps b { color: #f5e0e0; }
+
+  .error {
+    display: none;
+    margin-top: 16px;
+    color: var(--danger);
+    font-size: 13.5px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+
+  .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.25);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .howto-content {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+  .howto-content p { margin-bottom: 12px; }
+  .howto-content strong { color: #f5e0e0; }
+
+  .warning {
+    margin-top: 18px;
+    padding: 14px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    color: #fca5a5;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .admin-lock {
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+  .admin-lock h2 {
+    font-size: 17px;
+    margin-bottom: 6px;
+    color: #fff;
+    letter-spacing: 0.04em;
+  }
+  .admin-lock p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .stat-box {
+    background: #0a0505;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .stat-box .num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--accent-bright);
+    line-height: 1.1;
+  }
+  .stat-box .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+  }
+  .pair-list {
+    max-height: 280px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #0a0505;
+  }
+  .pair-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid #1a0c0c;
+    font-size: 13px;
+    gap: 10px;
+  }
+  .pair-item:last-child { border-bottom: none; }
+  .pair-item .num {
+    font-family: ui-monospace, Consolas, monospace;
+    color: #f5e0e0;
+    font-weight: 600;
+  }
+  .pair-item .time {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .pair-item .badge-ok {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #86efac;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.3);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .empty-list {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .admin-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+  .admin-bar h2 {
+    font-size: 16px;
+    color: #fff;
+  }
+  .ghost-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .ghost-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+  .admin-note {
+    margin-top: 12px;
+    font-size: 11.5px;
+    color: #6b5555;
+    line-height: 1.5;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 18px;
+  }
+  .back-btn:hover {
+    border-color: #ff2a2a;
+    color: #ff2a2a;
+  }
+
+  /* POWERED BY (dark) + RMS TECH (cool red) */
+  .powered {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #222;
+  }
+  .powered span {
+    color: var(--cool-red);
+    text-shadow: 
+      0 0 10px rgba(255, 26, 26, 0.55),
+      0 0 22px rgba(255, 26, 26, 0.25);
+    letter-spacing: 0.2em;
+  }
+</style>
+</head>
+<body>
+
+  <div class="particles" id="particles"></div>
+
+  <div id="intro">
+    <div class="welcome">WELCOME TO VICO XMD</div>
+    <div class="sub-welcome">Premium WhatsApp Experience</div>
+  </div>
+
+  <div class="container">
+    <div class="top-bar">
+      <div class="time-box">
+        <span id="liveTime">--:--:--</span>
+      </div>
+
+      <div style="position:relative;">
+        <button class="menu-btn" id="menuBtn" type="button">⋮</button>
+        <div class="dropdown" id="dropdown">
+          <button type="button" onclick="goTo('howto')">HOW TO PAIR</button>
+          <button type="button" onclick="goTo('admin')">ADMIN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="pairing" class="section active">
+        <div class="logo-wrap">
+          <div class="logo-glow">
+            <img src="https://files.catbox.moe/nvfzsg.jpg" alt="VICO XMD Logo">
+          </div>
+          <h1><span class="brand">VICO XMD</span> — <span>WEB PAIRING</span></h1>
+          <div class="title-line"></div>
+        </div>
+
+        <p class="sub">Enter your WhatsApp number without country code or space to generate a pairing code.</p>
+
+        <form id="pairForm">
+          <label for="number">WhatsApp Number</label>
+          <input type="text" id="number" name="number" placeholder="e.g. 2348012345678" inputmode="numeric" autocomplete="off" required>
+          <div class="hint">PAIR TO VICO XMD ❤️❤️</div>
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span id="btnText">GENERATE CODE</span>
+            <span class="spinner" id="spinner"></span>
+          </button>
+        </form>
+
+        <div class="error" id="errorBox"></div>
+
+        <div class="result" id="resultBox">
+          <div style="font-size:13px;color:var(--muted);">Your pairing code</div>
+          <div class="code" id="codeText">----</div>
+          <button class="copy-btn" id="copyBtn" type="button">Copy code</button>
+          <ol class="steps">
+            <li>Open <b>WhatsApp</b> on your phone</li>
+            <li>Go to <b>Settings › Linked Devices</b></li>
+            <li>Tap <b>Link a Device</b> → <b>Link with phone number instead</b></li>
+            <li>Enter the code above before it expires</li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="howto" class="section">
+        <button class="back-btn" onclick="goTo('pairing')">← BACK</button>
+        <h2 style="font-size:17px; margin-bottom:18px; color:#fff; text-align:center; letter-spacing:0.04em;">HOW TO LINK YOUR WHATSAPP BOT</h2>
+        <div class="howto-content">
+          <p><strong>Step 1:</strong> Open WhatsApp.</p>
+          <p><strong>Step 2:</strong> Tap the three dots ⋮ at the top-right.</p>
+          <p><strong>Step 3:</strong> Tap Linked devices.</p>
+          <p><strong>Step 4:</strong> Tap Link a device.</p>
+          <p><strong>Step 5:</strong> Choose <strong>Link with phone number instead</strong> and enter the pairing code from this site.</p>
+        </div>
+        <div class="warning">
+          <strong>BE CAREFUL:</strong> Never enter a pairing code from a stranger. Only use the code generated by your own bot/server.
+        </div>
+      </div>
+
+      <div id="admin" class="section">
+        <button class="back-btn" onclick="goTo('pairing')">← BACK</button>
+
+        <div id="adminLogin" class="admin-lock">
+          <h2>ADMIN LOGIN</h2>
+          <p>Restricted area — authorized access only</p>
+          <form id="loginForm">
+            <div style="text-align:left;margin-bottom:12px;">
+              <label for="adminUser">Username</label>
+              <input type="text" id="adminUser" autocomplete="username" placeholder="Username" required>
+            </div>
+            <div style="text-align:left;margin-bottom:4px;">
+              <label for="adminPass">Password</label>
+              <input type="password" id="adminPass" autocomplete="current-password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="submit-btn">LOGIN</button>
+          </form>
+          <div class="error" id="loginError"></div>
+        </div>
+
+        <div id="adminDash" style="display:none;">
+          <div class="admin-bar">
+            <h2>PAIRING DASHBOARD</h2>
+            <div>
+              <button type="button" class="ghost-btn" id="refreshBtn">REFRESH</button>
+              <button type="button" class="ghost-btn" id="logoutBtn">LOGOUT</button>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="num" id="statTotal">0</div>
+              <div class="lbl">Total pairs</div>
+            </div>
+            <div class="stat-box">
+              <div class="num" id="statToday">0</div>
+              <div class="lbl">Today</div>
+            </div>
+          </div>
+
+          <label style="margin-bottom:10px;">Paired numbers</label>
+          <div class="pair-list" id="pairList">
+            <div class="empty-list">No pairing records yet.</div>
+          </div>
+          <p class="admin-note">Shows successful pairing requests from this page (saved locally) and from the server if <code>/api/admin/pairs</code> is available.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="powered">POWERED BY <span>RMS TECH</span></div>
+  </div>
+
+<script>
+  setTimeout(() => {
+    document.getElementById('intro').classList.add('hide');
+
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (9 + Math.random() * 10) + 's';
+      p.style.animationDelay = (Math.random() * 4) + 's';
+      p.style.width = p.style.height = (4 + Math.random() * 4) + 'px';
+      particlesContainer.appendChild(p);
+    }
+  }, 1000);
+
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('liveTime').textContent = now.toLocaleTimeString('en-NG', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Africa/Lagos'
+    });
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+
+  const menuBtn = document.getElementById('menuBtn');
+  const dropdown = document.getElementById('dropdown');
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+  });
+  document.addEventListener('click', () => dropdown.classList.remove('show'));
+
+  function goTo(section) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(section).classList.add('active');
+    dropdown.classList.remove('show');
+
+    if (section === 'admin' && sessionStorage.getItem('vico_admin') === '1') {
+      showAdminDash();
+    }
+  }
+
+  const ADMIN_USER = 'RMS';
+  const ADMIN_PASS = 'RMS4LIFE';
+  const STORAGE_KEY = 'vico_pair_logs';
+
+  const form = document.getElementById('pairForm');
+  const numberInput = document.getElementById('number');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  const spinner = document.getElementById('spinner');
+  const errorBox = document.getElementById('errorBox');
+  const resultBox = document.getElementById('resultBox');
+  const codeText = document.getElementById('codeText');
+  const copyBtn = document.getElementById('copyBtn');
+
+  function setLoading(loading) {
+    submitBtn.disabled = loading;
+    btnText.style.display = loading ? 'none' : 'inline';
+    spinner.style.display = loading ? 'inline-block' : 'none';
+  }
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+  }
+
+  function loadLogs() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch { return []; }
+  }
+  function saveLog(entry) {
+    const logs = loadLogs();
+    logs.unshift(entry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(logs.slice(0, 200)));
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.style.display = 'none';
+    resultBox.style.display = 'none';
+
+    const raw = numberInput.value.trim();
+    const number = raw.replace(/[^0-9]/g, '');
+
+    if (!number || number.length < 7 || number.length > 15 || raw.startsWith('0')) {
+      showError('Enter a valid number with country code, no leading 0.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/webpair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.code) {
+        showError(data.error || 'Failed to generate a pairing code. Please try again.');
+        return;
+      }
+
+      codeText.textContent = data.code;
+      resultBox.style.display = 'block';
+
+      saveLog({
+        number: number,
+        code: data.code,
+        time: new Date().toISOString(),
+        source: 'web'
+      });
+    } catch (err) {
+      showError('Network error — please try again.');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(codeText.textContent.replace(/-/g, '')).then(() => {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => copyBtn.textContent = 'Copy code', 1500);
+    });
+  });
+
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+  const adminLogin = document.getElementById('adminLogin');
+  const adminDash = document.getElementById('adminDash');
+
+  function showAdminDash() {
+    adminLogin.style.display = 'none';
+    adminDash.style.display = 'block';
+    renderAdmin();
+  }
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    loginError.style.display = 'none';
+    const u = document.getElementById('adminUser').value.trim();
+    const p = document.getElementById('adminPass').value;
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+      sessionStorage.setItem('vico_admin', '1');
+      showAdminDash();
+    } else {
+      loginError.textContent = 'Invalid username or password.';
+      loginError.style.display = 'block';
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem('vico_admin');
+    adminDash.style.display = 'none';
+    adminLogin.style.display = 'block';
+    document.getElementById('adminUser').value = '';
+    document.getElementById('adminPass').value = '';
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', () => renderAdmin());
+
+  async function renderAdmin() {
+    let logs = loadLogs();
+
+    try {
+      const res = await fetch('/api/admin/pairs', {
+        headers: { 'X-Admin-User': ADMIN_USER, 'X-Admin-Pass': ADMIN_PASS }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.pairs) && data.pairs.length) {
+          logs = data.pairs.map(p => ({
+            number: p.number || p.phone || '—',
+            code: p.code || '',
+            time: p.time || p.timestamp || p.createdAt || new Date().toISOString(),
+            source: 'server'
+          })).concat(logs);
+        }
+      }
+    } catch (_) {}
+
+    const seen = new Set();
+    logs = logs.filter(l => {
+      const k = (l.number || '') + '|' + (l.time || '');
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+
+    const today = new Date().toDateString();
+    const todayCount = logs.filter(l => {
+      try { return new Date(l.time).toDateString() === today; } catch { return false; }
+    }).length;
+
+    document.getElementById('statTotal').textContent = String(logs.length);
+    document.getElementById('statToday').textContent = String(todayCount);
+
+    const list = document.getElementById('pairList');
+    if (!logs.length) {
+      list.innerHTML = '<div class="empty-list">No pairing records yet.</div>';
+      return;
+    }
+
+    list.innerHTML = logs.slice(0, 100).map(l => {
+      let when = '—';
+      try {
+        when = new Date(l.time).toLocaleString('en-NG', { timeZone: 'Africa/Lagos' });
+      } catch (_) {}
+      const num = String(l.number || '—');
+      return `<div class="pair-item">
+        <div>
+          <div class="num">+${num.replace(/^\+/, '')}</div>
+          <div class="time">${when}</div>
+        </div>
+        <span class="badge-ok">PAIRED</span>
+      </div>`;
+    }).join('');
+  }
+</script>
+</body>
+</html>
